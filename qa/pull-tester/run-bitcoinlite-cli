@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# This is a thin wrapper around bitcoinlite-cli that strips the Windows-style EOLs
+# from the output if present. It is necessary when using bitcoinlite-cli.exe on
+# Linux since shells will interpret the line-endings as part of the result.
+
+CURDIR=$(cd $(dirname "$0"); pwd)
+# Get BUILDDIR and REAL_BITCOINLITED
+
+# Grab the value of $REAL_BITCOINLITECLI which may be bitcoinlite-cli.exe.
+. "${CURDIR}/tests-config.sh"
+
+"${REAL_BITCOINLITECLI}" "$@" | sed 's/\r//'

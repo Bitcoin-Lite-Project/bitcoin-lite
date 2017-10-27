@@ -1,0 +1,5 @@
+Building BitcoinLite
+
+See doc/build-*.md for instructions on building bitcoinlited,
+the intended-for-services, no-graphical-interface, reference
+implementation of BitcoinLite.

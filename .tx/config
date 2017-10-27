@@ -1,0 +1,7 @@
+[main]
+host = https://www.transifex.com
+
+[bitcoinlite-lite-lite.qt-translation-010x]
+file_filter = src/qt/locale/bitcoinlite-lite-lite_<lang>.ts
+source_file = src/qt/locale/bitcoinlite-lite-lite_en.ts
+source_lang = en

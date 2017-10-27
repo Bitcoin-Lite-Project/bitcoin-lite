@@ -1,0 +1,86 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/bitcoinlite/.bitcoinlite" ]; then
+	BITCOINLITED_DEFAULT_DATADIR="/var/lib/bitcoinlite/.bitcoinlite"
+else
+	BITCOINLITED_DEFAULT_DATADIR="/var/lib/bitcoinlited"
+fi
+
+BITCOINLITED_CONFIGFILE=${BITCOINLITED_CONFIGFILE:-/etc/bitcoinlite/bitcoinlite.conf}
+BITCOINLITED_PIDDIR=${BITCOINLITED_PIDDIR:-/var/run/bitcoinlited}
+BITCOINLITED_PIDFILE=${BITCOINLITED_PIDFILE:-${BITCOINLITED_PIDDIR}/bitcoinlited.pid}
+BITCOINLITED_DATADIR=${BITCOINLITED_DATADIR:-${BITCOINLITED_DEFAULT_DATADIR}}
+BITCOINLITED_USER=${BITCOINLITED_USER:-bitcoinlite}
+BITCOINLITED_GROUP=${BITCOINLITED_GROUP:-bitcoinlite}
+BITCOINLITED_BIN=${BITCOINLITED_BIN:-/usr/bin/bitcoinlited}
+
+name="BitcoinLite Core Daemon"
+description="BitcoinLite crypto-currency p2p network daemon"
+
+command="/usr/bin/bitcoinlited"
+command_args="-pid=\"${BITCOINLITED_PIDFILE}\" \
+		-conf=\"${BITCOINLITED_CONFIGFILE}\" \
+		-datadir=\"${BITCOINLITED_DATADIR}\" \
+		-daemon \
+		${BITCOINLITED_OPTS}"
+
+required_files="${BITCOINLITED_CONFIGFILE}"
+start_stop_daemon_args="-u ${BITCOINLITED_USER} \
+			-N ${BITCOINLITED_NICE:-0} -w 2000"
+pidfile="${BITCOINLITED_PIDFILE}"
+retry=60
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BITCOINLITED_USER}:${BITCOINLITED_GROUP}" \
+	"${BITCOINLITED_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BITCOINLITED_USER}:${BITCOINLITED_GROUP}" \
+	"${BITCOINLITED_PIDDIR}"
+
+	checkpath -f \
+	-o ${BITCOINLITED_USER}:${BITCOINLITED_GROUP} \
+	-m 0660 \
+	${BITCOINLITED_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${BITCOINLITED_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run bitcoinlited."
+		eerror "The setting must appear in ${BITCOINLITED_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"BitcoinLite Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

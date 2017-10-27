@@ -1,0 +1,27 @@
+# /etc/conf.d/bitcoinlited: config file for /etc/init.d/bitcoinlited
+
+# Config file location
+#BITCOINLITED_CONFIGFILE="/etc/bitcoinlite/bitcoinlite.conf"
+
+# What directory to write pidfile to?  (created and owned by $BITCOINLITED_USER)
+#BITCOINLITED_PIDDIR="/var/run/bitcoinlited"
+
+# What filename to give the pidfile
+#BITCOINLITED_PIDFILE="${BITCOINLITED_PIDDIR}/bitcoinlited.pid"
+
+# Where to write bitcoinlited data (be mindful that the blockchain is large)
+#BITCOINLITED_DATADIR="/var/lib/bitcoinlited"
+
+# User and group to own bitcoinlited process
+#BITCOINLITED_USER="bitcoinlite"
+#BITCOINLITED_GROUP="bitcoinlite"
+
+# Path to bitcoinlited executable
+#BITCOINLITED_BIN="/usr/bin/bitcoinlited"
+
+# Nice value to run bitcoinlited under
+#BITCOINLITED_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+BITCOINLITED_OPTS="-disablewallet"
+
